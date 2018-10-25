@@ -1,19 +1,39 @@
 import re
 import numpy as np
 
+#  10/2018 - CP and MM / HC-CUNY
+#  A class that creates an instance of a molecule defined as conformer.
+#  It parses gaussian output file (optimization + freq at this moment to
+#  set proper flags, to be fixed for only freq calcs) and creates an object with
+#  following attibutes:
+#  - self.Geom -  np.array with xyz of all atoms
+#  - self.atoms - list of atomic numbers/int sorted as xyz
+#  - self.[EHG/Ezpe] - float, respective energy function value
+#  - self.Freq + self.Ints - np.array consisting either freqs or ints
+#  - self.Vibs - 3D np.array with normal modes of all vibrations
+#  - self.NAtoms - int with number of atoms
+#  - self._ir    - identification/directory name
+
+
+
+
 class Conformer():
 
     def __init__(self, file_path):
 
 
+        
+
+
         normal_mode_flag=False
         freq_flag = False
         read_geom = False
+
         #temprorary variables to hold the data
         freq = [] ; ints = [] ; vibs = [] ; geom = [] ; atoms = []
-        #Attributs:
+
         self.NAtoms = None  
-        self._id    = str(file_path).split('/')[0]
+        self._id    = str(file_path).split('/')[1]
 
         for line in file(file_path, 'r').readlines():                     
 
@@ -44,7 +64,7 @@ class Conformer():
                      normal_mode_flag = False 
                      for m in [mode_1, mode_2, mode_3]: vibs.append(np.array(m))
 
-                elif re.search('Normal termination', line): freq_flag = True
+                elif freq_flag == False and re.search('Normal termination', line): freq_flag = True
 
                 elif freq_flag == True and re.search('SCF Done',   line): self.E = float(line.split()[4])
                 elif freq_flag == True and re.search('Sum of electronic and zero-point Energies',   line): self.Ezpe = float(line.split()[6])
@@ -65,21 +85,36 @@ class Conformer():
 
     def __str__(self): 
 
+       '''Prints a some molecular properties'''
+
        print "%30s\n                  NAtoms=%5d\n" %(self._id, self.NAtoms),
        print "E=%20.8f H=%20.8f F=%20.8f\n" %( self.E, self.H, self.F),
        return ' '
 
     def gaussian_broadening(self, broaden, resolution=1):
+ 
+        ''' Performs gaussian broadening on IR spectrum:
+        Args:
+            broaden - gaussian broadening in wn-1
+            resolution - resolution of the spectrum (number of points for 1 wn)
+                         defaults is 1, needs to be fixed in plotting
+        Returns:
+            self.IR - np.array with dimmension 4000/resolution consisting
+                      gaussian-boraden spectrum
+        '''
+
         self.IR = np.zeros((int(4000/resolution) + 1,))
         X = np.linspace(0,4000, int(4000/resolution)+1)
         for f, i in zip(self.Freq, self.Ints):  self.IR += i*np.exp(-0.5*((X-f)/int(broaden))**2)
+
 
     def plot_ir(self, xmin = 800, xmax = 1800, scaling_factor = 0.965,  plot_exp = False, exp_data = None):
 
         ''' Plots the IR spectrum in xmin -- xmax range,
         x-axis is multiplied by scaling factor, everything
         is normalized to 1. If exp_data is specified, 
-        then the top panel is getting plotted too'''
+        then the top panel is getting plotted too. 
+        Need to add output directory. Default name is self._id'''
 
         import matplotlib.pyplot as plt
         from matplotlib.ticker import NullFormatter
