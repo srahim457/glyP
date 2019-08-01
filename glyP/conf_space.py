@@ -16,6 +16,7 @@ class Space(list):
     _temp = 298.15
     _kT=0.0019872036*_temp
     _Ha2kcal=627.5095
+    w_incr = 0.5
 
     def __init__(self, molecule):
 
@@ -24,7 +25,13 @@ class Space(list):
                 print dirname
                 #oldername = os.path.basename(dirpath)
                 if dirname == 'experimental':
-                    self.expIR = np.genfromtxt(molecule+'/'+dirname+'/exp.dat')
+                     self.ir_resolution = np.genfromtxt(molecule+'/'+dirname+'/exp.dat')
+                        if self.ir_resultion[0] =="w_incr": #fix this statement 
+                        w_incr=float(line[1])
+                        incr = 0.1*w_incr
+                        grid_old = numpy.arange(0,len(integrand))*w_incr
+                        grid_new = numpy.arange(grid_old[0],grid_old[-1]+incr,incr)
+                        spl = interpolate.splrep(grid_old,integrand.T[1],k=3,s=0)#figure out proper paramters k, s
                 for ifiles in os.walk(molecule+'/'+dirname):
                     for filename in ifiles[2]:
                         if filename.endswith('.log'):
