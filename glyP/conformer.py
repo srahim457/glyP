@@ -1,5 +1,4 @@
 import re
-import numpy as np
 
 #  10/2018 - CP and MM / HC-CUNY
 #  A class that creates an instance of a molecule defined as conformer.
@@ -15,15 +14,12 @@ import numpy as np
 #  - self._ir    - identification/directory name
 
 
-
+import numpy as np
+from utilities import * 
 
 class Conformer():
 
     def __init__(self, file_path):
-
-
-        
-
 
         normal_mode_flag=False
         freq_flag = False
@@ -74,14 +70,14 @@ class Conformer():
                 elif freq_flag == True and re.search('Coordinates', line) : read_geom = True
                 elif freq_flag == True and read_geom == True and re.search('^\s*.\d', line):
                      geom.append(map(float, line.split()[3:6]))
-                     atoms.append(int(line.split()[1]))
+                     atoms.append(element_symbol(line.split()[1]))
                      if int(line.split()[0]) == self.NAtoms:
                        read_geom = False
 
         self.Freq = np.array( freq ) ; self.Ints = np.array( ints )
         self.Vibs=np.zeros((self.NVibs, self.NAtoms, 3))
         for i in range(self.NVibs): self.Vibs[i,:,:] = vibs[i]
-        self.Geom = np.array(geom)
+        self.xyz = np.array(geom) ; self.atoms = atoms
 
     def __str__(self): 
 
@@ -106,7 +102,6 @@ class Conformer():
         self.IR = np.zeros((int(4000/resolution) + 1,))
         X = np.linspace(0,4000, int(4000/resolution)+1)
         for f, i in zip(self.Freq, self.Ints):  self.IR += i*np.exp(-0.5*((X-f)/int(broaden))**2)
-
 
     def plot_ir(self, xmin = 800, xmax = 1800, scaling_factor = 0.965,  plot_exp = False, exp_data = None):
 

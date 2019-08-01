@@ -1,6 +1,8 @@
 from conformer import *
 from conf_space import *
-import calc_cp
+import numpy as np
+from utilities import *
+
 
 
 def _main():

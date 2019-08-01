@@ -43,8 +43,8 @@ def haversine(lon1, lat1, lon2, lat2):
     c = math.acos(math.sin(lat1)*math.sin(lat2)+math.cos(lat1)*math.cos(lat2)*math.cos(lon1-lon2))
     return c
 
-
 def find_canon(n1, n2):
+
     new_dict = {}
     for elem in dict_canon:
         diff = haversine(n1, n2, dict_canon[elem][0], dict_canon[elem][1])
@@ -57,23 +57,12 @@ def norm(a):
     return math.sqrt(numpy.sum(a*a))
 
 
-def tofloat(a):
-    b = []
-    for i in a:
-        b.append(float(i))
-    return b
-
-
-def cp_values(xyz_file, ring_atoms):
+def cp_values(xyz, ring_atoms):
 
     atoms = numpy.zeros((6, 3), dtype='float64')
-    inputfile = file(xyz_file)
-    for i, line in enumerate(inputfile):
-        list_ind = ring_atoms 
-        sline = line.split()
-        if i in list_ind:
-            atoms[list_ind.index(i)] = tofloat(sline[1:4])
-    inputfile.close()
+    for i  in range(xyz.shape[0]):
+        if i in ring_atoms:
+            atoms[ring_atoms.index(i)] = xyz[i,:]
     #print atoms
 
     center = numpy.add.reduce(atoms)/6.
@@ -140,4 +129,4 @@ if __name__ == "__main__":
 
     f1 = sys.argv[1]
     cp_val = cp_values(f1)
-    print "%10.1f%10.1f%10s" %(cp_val[0], cp_val[1], cp_val[2])
+    #print "%10.1f%10.1f%10s" %(cp_val[0], cp_val[1], cp_val[2])

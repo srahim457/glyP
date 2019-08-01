@@ -1,8 +1,8 @@
+import os, sys
 import numpy as np
-import os
 from conformer import *
+from utilities import *
 from copy import copy as cp
-
 
 class Space(list):
 
@@ -45,9 +45,23 @@ class Space(list):
 
         for conf in self: conf.gaussian_broadening(broaden)
 
+    def assign_ring_puckers(self):
+
+        ''' assign rings to each conformer '''
+
+        #try: self.ring
+        #except AttributeError: print "find ring_atoms first" ; sys.quit()
+
+        for conf in self: 
+            conf.ring = []
+            conf.ring_angle = []
+            for r in self.rings: 
+                phi, psi, R = calculate_ring(conf.xyz, r)
+                conf.ring.append(R) ; conf.ring_angle.append([phi, psi])
+
     def reference_to_zero(self, energy_function='E'):
 
-       '''Finds a conformer with the lowest specified energy function and 
+        '''Finds a conformer with the lowest specified energy function and 
         references remainins conformers to this.'''
 
         Eref = 0.0 ; Fref = 0.0 ; Href = 0.0 
@@ -60,3 +74,50 @@ class Space(list):
                     Eref = cp(conf.E) ; Href = cp(conf.H) ; Fref = cp(conf.F)
         for conf in self: 
               conf.E -= Eref;  conf.H -= Href ;  conf.F -= Fref
+
+    def create_connectivity_matrix(self, index=0, distXX=1.6, distXH=1.2):
+
+        '''Create a connectivity matrix as an attribute to the conf_space:
+        index - index of conf used for the matrix 
+        distXX - cutoff distance between heavy atoms
+        distXH - cutoff distance between heavy at - hydrogen '''
+
+        Nat = self[0].NAtoms
+        conf = self[index]
+        self.conn_mat = np.zeros((Nat, Nat)) 
+        for at1 in range(Nat):
+            for at2 in range(Nat):
+                dist = get_distance(conf.xyz[at1], conf.xyz[at2]) 
+                if at1 == at2: pass
+                elif (conf.atoms[at1] == 'H' or conf.atoms[at2] == 'H') and dist < distXH: self.conn_mat[at1,at2] = 1; self.conn_mat[at2,at1] = 1
+                elif dist < distXX: self.conn_mat[at1,at2] = 1; self.conn_mat[at2,at1] = 1
+
+    def assign_pyranose_atoms(self):
+
+        import networkx as nx
+
+        cm = nx.graph.Graph(self.conn_mat)
+        rings = nx.cycle_basis(cm)
+        an = self[0].atoms
+        self.rings = []
+        n = 0
+        for r in rings:
+            self.rings.append({})
+            rd = self.rings[n]
+            for at in r:
+                if an[at] == 'O': 
+                    rd['O'] = at 
+                else: 
+                    for at2 in np.where(self.conn_mat[at] == 1)[0]: 
+                        if an[at2] == 'C' and at2 not in r: 
+                            rd['C4'] = at  
+            for at in rd.values(): r.remove(at)
+            for at in r: 
+                if self.conn_mat[at][rd['O']] == 1: rd['C0'] = at
+                elif self.conn_mat[at][rd['C4']] == 1: rd['C3'] = at
+            for at in [rd['C3'], rd['C0']]:  r.remove(at)           
+            for at in r: 
+                if self.conn_mat[at][rd['C0']] == 1: rd['C1'] = at
+                elif self.conn_mat[at][rd['C3']] == 1: rd['C2'] = at                        
+            for at in [rd['C2'], rd['C1']]:  r.remove(at)
+            n += 1 
