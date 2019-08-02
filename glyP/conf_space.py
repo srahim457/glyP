@@ -1,5 +1,6 @@
 import os, sys
 import numpy as np
+import networkx as nx
 from conformer import *
 from utilities import *
 from copy import copy as cp
@@ -17,22 +18,18 @@ class Space(list):
     _kT=0.0019872036*_temp
     _Ha2kcal=627.5095
 
-    def __init__(self, molecule):
+    def __init__(self, molecule, ir_resolution=1):
 
         for (root, dirs, files) in os.walk('./'+molecule):
             for dirname in dirs:
                 print dirname
                 #oldername = os.path.basename(dirpath)
                 if dirname == 'experimental':
-                    self.expIR = np.genfromtxt(molecule+'/'+dirname+'/exp.dat')
                     self.ir_resolution = np.genfromtxt(molecule+'/'+dirname+'/exp.dat')
-                        if self.ir_resultion[0]=="w_incr": #fix statement
-                        w_incr=float(line[1])
-                        incr = 0.1*w_incr
-                        grid_old = numpy.arange(0,len(integrand))*w_incr
-                        grid_new = numpy.arange(grid_old[0],grid_old[-1]+incr,incr)
-                        spl = interpolate.splrep(grid_old,integrand.T[1],k=3,s=0) #find proper values for parameters k,s 
-                        integrand_dense = interpolate.splev(grid_new,spl,der=0)
+                        exp_new = np.arange(1,len(self.ir_resolution))*.01
+                        spline_1D = interpolate.splrep(exp_old,self.ir_resolution.T[1],k=3,s=0) #splrep finds spline of 1 d curve (x,y)--k repressents the recommended cubic spline, s represents the closeness vs smoothness tradeoff of k-- .T creates a transpose of the coordinates which you can then unpack and separate x and y
+                        spline_coef = interpolate.splev(exp_new,spline_1D,der=0) #--splev provides the knots and coefficients--der is the degree of the spline and must be less or equal to k
+                        expIR = np.vstack((exp_new, spline_coef)).T 
                 for ifiles in os.walk(molecule+'/'+dirname):
                     for filename in ifiles[2]:
                         if filename.endswith('.log'):
@@ -103,7 +100,6 @@ class Space(list):
 
     def assign_pyranose_atoms(self):
 
-        import networkx as nx
 
         cm = nx.graph.Graph(self.conn_mat)
         rings = nx.cycle_basis(cm)
