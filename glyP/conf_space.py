@@ -15,16 +15,24 @@ class Space(list):
 
     _temp = 298.15
     _kT=0.0019872036*_temp
-    _Ha2kcal=627.5095
+    _Ha2kcal=627.5095  
 
-    def __init__(self, molecule):
+    def __init__(self, molecule, ir_resolution=1):
+        
+        self.ir_resolution = ir_resolution 
 
         for (root, dirs, files) in os.walk('./'+molecule):
             for dirname in dirs:
                 print dirname
                 #oldername = os.path.basename(dirpath)
                 if dirname == 'experimental':
-                    self.expIR = np.genfromtxt(molecule+'/'+dirname+'/exp.dat')
+                    expIR= np.genfromtxt(molecule+'/'+dirname+'/exp.dat')
+                    incr =  self.ir_resolution
+                    grid_old = numpy.arange(0,len(expIR))*incr
+                    grid_new = numpy.arange(grid_old[0],grid_old[-1]+incr,incr)
+                    spline_1D = interpolate.splrep(grid_old,expIR.T[1],k=3,s=0) #splrep finds spline of 1 d curve (x,y)--k repressents the recommended cubic spline, s represents the closeness vs smoothness tradeoff of k-- .T creates a transpose of the coordinates which you can then unpack and separate x and y
+                    spline_coef = interpolate.splev(grid_new,spline_1D,der=0) #--splev provides the knots and coefficients--der is the degree of the spline and must be less or equal to k
+                    self.expIR = np.vstack((grid_new, spline_coef)).T 
                 for ifiles in os.walk(molecule+'/'+dirname):
                     for filename in ifiles[2]:
                         if filename.endswith('.log'):
@@ -39,11 +47,12 @@ class Space(list):
             print "%20s%20.2f%20.2f%20.2f\n" %(conf._id, conf.E*self._Ha2kcal, conf.H*self._Ha2kcal, conf.F*self._Ha2kcal),
         return ''
 
-    def gaussian_broadening(self, broaden=5):
+     def gaussian_broadening(self, broaden=5, self._ir_resolution):
 
         ''' Performs gaussian broadening for the set''' 
 
-        for conf in self: conf.gaussian_broadening(broaden)
+        for conf in self: conf.gaussian_broadening(broaden, resolution=self._ir_resolution)
+            
 
     def assign_ring_puckers(self):
 
@@ -95,7 +104,7 @@ class Space(list):
     def assign_pyranose_atoms(self):
 
         import networkx as nx
-
+        
         cm = nx.graph.Graph(self.conn_mat)
         rings = nx.cycle_basis(cm)
         an = self[0].atoms
