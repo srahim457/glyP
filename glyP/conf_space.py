@@ -17,19 +17,24 @@ class Space(list):
     _temp = 298.15
     _kT=0.0019872036*_temp
     _Ha2kcal=627.5095
+    w_incr = 0.5  
 
     def __init__(self, molecule, ir_resolution=1):
+        
+        self.ir_resolution = ir_resolution 
 
         for (root, dirs, files) in os.walk('./'+molecule):
             for dirname in dirs:
                 print dirname
                 #oldername = os.path.basename(dirpath)
                 if dirname == 'experimental':
-                    self.ir_resolution = np.genfromtxt(molecule+'/'+dirname+'/exp.dat')
-                        exp_new = np.arange(1,len(self.ir_resolution))*.01
-                        spline_1D = interpolate.splrep(exp_old,self.ir_resolution.T[1],k=3,s=0) #splrep finds spline of 1 d curve (x,y)--k repressents the recommended cubic spline, s represents the closeness vs smoothness tradeoff of k-- .T creates a transpose of the coordinates which you can then unpack and separate x and y
-                        spline_coef = interpolate.splev(exp_new,spline_1D,der=0) #--splev provides the knots and coefficients--der is the degree of the spline and must be less or equal to k
-                        expIR = np.vstack((exp_new, spline_coef)).T 
+                    expIR= np.genfromtxt(molecule+'/'+dirname+'/exp.dat')
+                    incr = 0.1*w_incr
+                    grid_old = numpy.arange(0,len(expIR))*incr
+                    grid_new = numpy.arange(grid_old[0],grid_old[-1]+incr,incr)
+                    spline_1D = interpolate.splrep(grid_old,expIR.T[1],k=3,s=0) #splrep finds spline of 1 d curve (x,y)--k repressents the recommended cubic spline, s represents the closeness vs smoothness tradeoff of k-- .T creates a transpose of the coordinates which you can then unpack and separate x and y
+                    spline_coef = interpolate.splev(grid_new,spline_1D,der=0) #--splev provides the knots and coefficients--der is the degree of the spline and must be less or equal to k
+                    expIR = np.vstack((grid_new, spline_coef)).T 
                 for ifiles in os.walk(molecule+'/'+dirname):
                     for filename in ifiles[2]:
                         if filename.endswith('.log'):
