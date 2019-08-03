@@ -20,6 +20,7 @@ class Space(list):
     def __init__(self, molecule, ir_resolution=1):
         
         self.ir_resolution = ir_resolution 
+        incr = self.ir_resolution
 
         for (root, dirs, files) in os.walk('./'+molecule):
             for dirname in dirs:
@@ -27,12 +28,14 @@ class Space(list):
                 #oldername = os.path.basename(dirpath)
                 if dirname == 'experimental':
                     expIR= np.genfromtxt(molecule+'/'+dirname+'/exp.dat')
-                    incr =  self.ir_resolution
-                    grid_old = numpy.arange(0,len(expIR))*incr
-                    grid_new = numpy.arange(grid_old[0],grid_old[-1]+incr,incr)
-                    spline_1D = interpolate.splrep(grid_old,expIR.T[1],k=3,s=0) #splrep finds spline of 1 d curve (x,y)--k repressents the recommended cubic spline, s represents the closeness vs smoothness tradeoff of k-- .T creates a transpose of the coordinates which you can then unpack and separate x and y
+                    grid_old = np.arange(0,len(expIR))
+                    exp_incr = (expIR[-1,0] -  expIR[0,0])/len(expIR)
+                    print exp_incr
+                    grid_new = np.arange(grid_old[0],grid_old[-1]+incr/exp_incr,incr/exp_incr)
+                    spline_1D = interpolate.splrep(grid_old,expIR.T[1],k=3,s=0) 
+                    #splrep finds spline of 1 d curve (x,y)--k repressents the recommended cubic spline, s represents the closeness vs smoothness tradeoff of k-- .T creates a transpose of the coordinates which you can then unpack and separate x and y
                     spline_coef = interpolate.splev(grid_new,spline_1D,der=0) #--splev provides the knots and coefficients--der is the degree of the spline and must be less or equal to k
-                    self.expIR = np.vstack((grid_new, spline_coef)).T 
+                    self.expIR = np.vstack(( np.arange(expIR[0,0], expIR[0,0]+len(grid_new)*incr, incr), spline_coef)).T 
                 for ifiles in os.walk(molecule+'/'+dirname):
                     for filename in ifiles[2]:
                         if filename.endswith('.log'):
@@ -47,7 +50,7 @@ class Space(list):
             print "%20s%20.2f%20.2f%20.2f\n" %(conf._id, conf.E*self._Ha2kcal, conf.H*self._Ha2kcal, conf.F*self._Ha2kcal),
         return ''
 
-     def gaussian_broadening(self, broaden=5, self._ir_resolution):
+    def gaussian_broadening(self, broaden=1):
 
         ''' Performs gaussian broadening for the set''' 
 
