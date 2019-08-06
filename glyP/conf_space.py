@@ -17,7 +17,7 @@ class Space(list):
     _kT=0.0019872036*_temp
     _Ha2kcal=627.5095  
 
-    def __init__(self, molecule, ir_resolution=1):
+    def __init__(self, molecule, ir_resolution=1.0):
         
         self.ir_resolution = ir_resolution 
         incr = self.ir_resolution
@@ -30,7 +30,6 @@ class Space(list):
                     expIR= np.genfromtxt(molecule+'/'+dirname+'/exp.dat')
                     grid_old = np.arange(0,len(expIR))
                     exp_incr = (expIR[-1,0] -  expIR[0,0])/len(expIR)
-                    print exp_incr
                     grid_new = np.arange(grid_old[0],grid_old[-1]+incr/exp_incr,incr/exp_incr)
                     spline_1D = interpolate.splrep(grid_old,expIR.T[1],k=3,s=0) 
                     #splrep finds spline of 1 d curve (x,y)--k repressents the recommended cubic spline, s represents the closeness vs smoothness tradeoff of k-- .T creates a transpose of the coordinates which you can then unpack and separate x and y
@@ -54,7 +53,7 @@ class Space(list):
 
         ''' Performs gaussian broadening for the set''' 
 
-        for conf in self: conf.gaussian_broadening(broaden, resolution=self._ir_resolution)
+        for conf in self: conf.gaussian_broadening(broaden, resolution=self.ir_resolution)
             
 
     def assign_ring_puckers(self):

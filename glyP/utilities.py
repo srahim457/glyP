@@ -6,8 +6,9 @@ from scipy import interpolate
 from optparse import OptionParser
 
 def error(msg):
-    msg = "error"
-    print (msg)
+   """ write error message and quit
+   """
+   sys.stderr.write(msg + "\n")
    sys.exit(3)
 
 def get_distance(at1, at2):
@@ -96,18 +97,9 @@ def ypendry(spec,d1_spec,VI):
    return y
 
 
-def _main():
-    
-        start=1000   
-        stop=1800    
-        w_incr=0.5       
-        shift_min=-10   
-        shift_max=+10  
-        shift_incr=1  
-        r=pendry 
-        VI=10 
+def rfac(espec, tspec, start=1000, stop=1800, w_incr=1.0, shift_min=-10, shift_max=+10, shift_incr=1, r="pendry", VI=10):
 
-   usage = """ %prog [options] r-fac.in
+   """ %prog [options] r-fac.in
         Reads two spectra and calculates various R-factors -- FS 2011
         Attention: both spectra have to be given on the same, equidistant grid!
         NOTE: in the f77-program R1 is scaled by 0.75 and R2 is scaled by 0.5; this is not done here
@@ -122,68 +114,10 @@ def _main():
         r=pendry         # which r-factor should be calculated? options: pendry, ZJ, R1, R2 (give a list of the requested r-factors separated by comma)
         VI=10            # approximate half-width of the peaks (needed for pendry r-factor)
         """
-   parser = OptionParser(usage=usage)
-   parser.add_option("-t","--theory", 
-                     default="theory.dat",dest="theory",metavar="filename",
-                     help="input file theoretical spectrum [default: %default]")
-   parser.add_option("-e","--exp", 
-                     default="exp.dat",dest="exp",metavar="filename",
-                     help="input file experimental spectrum [default: %default]")
-    
-    
-            for shift in numpy.arange(shift_min,shift_max+shift_incr,shift_incr):# get the interval within the two spectra are compared
-                tnstart,tnstop,enstart,enstop = get_range(tspec,espec,w_incr,shift,start,stop) 
-    
-    
-    
-    
-    
-    
-   parser = OptionParser(usage=usage)
-   parser.add_option("-t","--theory", 
-                     default="theory.dat",dest="theory",metavar="filename",
-                     help="input file theoretical spectrum [default: %default]")
-   parser.add_option("-e","--exp", 
-                     default="exp.dat",dest="exp",metavar="filename",
-                     help="input file experimental spectrum [default: %default]")
-
-   options, args = parser.parse_args()
+   #for shift in numpy.arange(shift_min,shift_max+shift_incr,shift_incr):# get the interval within the two spectra are compared
+                #tnstart,tnstop,enstart,enstop = get_range(tspec,espec,w_incr,shift,start,stop) 
+ 
    
-# read spectra in
-   input_theory=open(options.theory)
-   tspec=[map(float,line.split()) for line in input_theory.readlines()]
-   input_theory.close()
-   input_exp=open(options.exp)
-   espec=[map(float,line.split()) for line in input_exp.readlines()]
-   input_exp.close()
-
-# read r-fac.in
-   if (len(args) != 1):
-      error("Please provide r-fac.in and execute: python calc-r-factors.py r-fac.in")
-   for line in open(args[0]):
-      line=line.split("=")
-      if line[0]=="start":
-         start=float(line[1])
-      elif line[0]=="stop":
-         stop=float(line[1])
-      elif line[0]=="w_incr":
-         w_incr=float(line[1])
-      elif line[0]=="shift_min":
-         shift_min=float(line[1])
-      elif line[0]=="shift_max":
-         shift_max=float(line[1])
-      elif line[0]=="shift_incr":
-         shift_incr=float(line[1])
-      elif line[0]=="r":
-         r=line[1].split(",") 
-         r=[i.strip() for i in r]  # strip off leading and trailing whitespaces
-         sys.stdout.write("Requested r-factors: ")
-         for i in r:
-            sys.stdout.write("%s " % i)
-         sys.stdout.write("\nNOTE: in the f77-program R1 is scaled by 0.75 and R2 is scaled by 0.5; this is not done here\n\n")   
-      elif line[0]=="VI":
-         VI=float(line[1])
-
 # perform some checks of the input data...
    if (int(shift_incr/w_incr+0.00001) == 0):
       error("Error: shift_incr cannot be smaller than w_incr!")
@@ -233,23 +167,23 @@ def _main():
    min_r2     = [1.E100,0]
    min_zj     = [1.E100,0]
 # start with loop over x-axis shifts
-   for shift in numpy.arange(shift_min,shift_max+shift_incr,shift_incr):
+   for shift in np.arange(shift_min,shift_max+shift_incr,shift_incr):
       # get the interval within the two spectra are compared
       tnstart,tnstop,enstart,enstop = get_range(tspec,espec,w_incr,shift,start,stop) 
-      sys.stdout.write("\nshift: %9.3f, theory-start: %5d, theory-end: %5d, exp-start: %5d, exp-end: %5d\n" % (shift,tspec[tnstart][0],tspec[tnstop-1][0],espec[enstart][0],espec[enstop-1][0]))
-      s_espec = numpy.array(espec[enstart:enstop]) # cut out the interval within which the comparison takes place
-      s_tspec = numpy.array(tspec[tnstart:tnstop])
-      s_d1_espec = numpy.array(d1_espec[enstart:enstop])
-      s_d1_tspec = numpy.array(d1_tspec[tnstart:tnstop])
+      #sys.stdout.write("\nshift: %9.3f, theory-start: %5d, theory-end: %5d, exp-start: %5d, exp-end: %5d\n" % (shift,tspec[tnstart][0],tspec[tnstop-1][0],espec[enstart][0],espec[enstop-1][0]))
+      s_espec = np.array(espec[enstart:enstop]) # cut out the interval within which the comparison takes place
+      s_tspec = np.array(tspec[tnstart:tnstop])
+      s_d1_espec = np.array(d1_espec[enstart:enstop])
+      s_d1_tspec = np.array(d1_tspec[tnstart:tnstop])
       c_scale=integrate(s_espec,w_incr)/integrate(s_tspec,w_incr)
       if "pendry" in r:
          # see J.B. Pendry, J. Phys. C: Solid St. Phys. 13 (1980) 937-44
-         s_yt = numpy.array(yt[tnstart:tnstop]) # cut out the interval within which the comparison takes place
-         s_ye = numpy.array(ye[enstart:enstop])
+         s_yt = np.array(yt[tnstart:tnstop]) # cut out the interval within which the comparison takes place
+         s_ye = np.array(ye[enstart:enstop])
          te2 = integrate((s_yt-s_ye)**2,w_incr) # integrate (yt-ye)^2
          t2e2 = integrate(s_yt**2+s_ye**2,w_incr) # integrate yt^2+ye^2
          r_pend = te2/t2e2
-         sys.stdout.write("Pendry R-factor : %f, shift: %f\n" % (r_pend,shift))
+         #sys.stdout.write("Pendry R-factor : %f, shift: %f\n" % (r_pend,shift))
          if (r_pend < min_pendry[0] ):
             min_pendry=[r_pend,shift]
       if "R1" in r:
@@ -266,8 +200,8 @@ def _main():
             min_r2=[r2,shift]
       if "ZJ" in r:      
          # E. Zanazzi, F. Jona, Surface Science 62 (1977), 61-88
-         s_d2_tspec = numpy.array(d2_tspec[tnstart:tnstop])
-         s_d2_espec = numpy.array(d2_espec[enstart:enstop])
+         s_d2_tspec = np.array(d2_tspec[tnstart:tnstop])
+         s_d2_espec = np.array(d2_espec[enstart:enstop])
 
          epsilon = 0
          for i in s_d1_espec:
@@ -277,11 +211,11 @@ def _main():
          integrand = abs(c_scale*s_d2_tspec-s_d2_espec)*abs(c_scale*s_d1_tspec-s_d1_espec)/(abs(s_d1_espec)+epsilon)
          # interpolate integrand onto 10 times denser grid, see publication by Zanazzi & Jona
          incr = 0.1*w_incr
-         grid_old = numpy.arange(0,len(integrand))*w_incr
-         grid_new = numpy.arange(grid_old[0],grid_old[-1]+incr,incr)
+         grid_old = np.arange(0,len(integrand))*w_incr
+         grid_new = np.arange(grid_old[0],grid_old[-1]+incr,incr)
          spl = interpolate.splrep(grid_old,integrand.T[1],k=3,s=0)
          integrand_dense = interpolate.splev(grid_new,spl,der=0)
-         integrand_dense = numpy.vstack((grid_new,integrand_dense)).T
+         integrand_dense = np.vstack((grid_new,integrand_dense)).T
          # calculate reduced Zanazzi-Jona R-factor r=r/0.027
          r_zj = integrate(integrand_dense,incr)/(0.027*integrate(abs(s_espec),w_incr))
          sys.stdout.write("red. ZJ R-factor: %f, shift %f\n" % (r_zj,shift))
@@ -290,9 +224,10 @@ def _main():
 
 
 # find minimal r-factor and write it out
-   sys.stdout.write("\nMinimal r-factors:\n")
+   #sys.stdout.write("\nMinimal r-factors:\n")
    if "pendry" in r:
-      sys.stdout.write("minimal r-factor: Delta = %8.5f, Pendry R-factor = %7.5f \n" % ( min_pendry[1], min_pendry[0]))
+      #sys.stdout.write("minimal r-factor: Delta = %8.5f, Pendry R-factor = %7.5f \n" % ( min_pendry[1], min_pendry[0]))
+        return min_pendry[1], min_pendry[0]
    if "R1" in r:
       sys.stdout.write("minimal r-factor: Delta = %8.5f, R1 R-factor = %7.5f \n" % ( min_r1[1], min_r1[0]))
    if "R2" in r:
@@ -301,8 +236,6 @@ def _main():
       sys.stdout.write("minimal r-factor: Delta = %8.5f, ZJ R-factor = %7.5f \n" % ( min_zj[1], min_zj[0]))
 
 
-if __name__ == "__main__":
-      _main()
 
 
 
