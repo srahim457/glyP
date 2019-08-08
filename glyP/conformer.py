@@ -99,9 +99,10 @@ class Conformer():
                       gaussian-boraden spectrum
         '''
 
-        self.IR = np.zeros((int(4000/resolution) + 1,))
+        IR = np.zeros((int(4000/resolution) + 1,))
         X = np.linspace(0,4000, int(4000/resolution)+1)
-        for f, i in zip(self.Freq, self.Ints):  self.IR += i*np.exp(-0.5*((X-f)/int(broaden))**2)
+        for f, i in zip(self.Freq, self.Ints):  IR += i*np.exp(-0.5*((X-f)/int(broaden))**2)
+        self.IR=np.vstack((X, IR)).T
 
     def plot_ir(self, xmin = 800, xmax = 1800, scaling_factor = 0.965,  plot_exp = False, exp_data = None):
 
