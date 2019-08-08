@@ -28,6 +28,9 @@ class Space(list):
                 #oldername = os.path.basename(dirpath)
                 if dirname == 'experimental':
                     expIR= np.genfromtxt(molecule+'/'+dirname+'/exp.dat')
+                    K = np.ceil(expIR[:,0])
+                    I = expIR[:,1]
+                    expIR = np.column_stack((K,I));
                     grid_old = np.arange(0,len(expIR))
                     exp_incr = (expIR[-1,0] -  expIR[0,0])/len(expIR)
                     grid_new = np.arange(grid_old[0],grid_old[-1]+incr/exp_incr,incr/exp_incr)
@@ -54,8 +57,7 @@ class Space(list):
         ''' Performs gaussian broadening for the set''' 
 
         for conf in self: conf.gaussian_broadening(broaden, resolution=self.ir_resolution)
-            
-
+                   
     def assign_ring_puckers(self):
 
         ''' assign rings to each conformer '''
