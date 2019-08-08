@@ -1,9 +1,10 @@
 import math
-import calc_cp
+import calc_cp, rmsd
 import numpy as np
 import sys
 from scipy import interpolate
 from optparse import OptionParser
+
 
 def error(msg):
    """ write error message and quit
@@ -26,6 +27,10 @@ def calculate_ring(xyz, ring_atoms):
 
     phi, psi, R = calc_cp.cp_values(xyz, sorted_atoms) 
     return phi, psi, R
+
+def calculate_rmsd(xyz1, xyz2, atoms=None):
+
+    return rmsd.rmsd_qcp(xyz1, xyz2)
 
 def deriv(spec,h):
    """ calculate first derivative of function 'spec'
@@ -97,7 +102,7 @@ def ypendry(spec,d1_spec,VI):
    return y
 
 
-def rfac(espec, tspec, start=1000, stop=1800, w_incr=1.0, shift_min=-10, shift_max=+10, shift_incr=1, r="pendry", VI=10):
+def rfac(espec, tspec, start=1000, stop=1700, w_incr=1.0, shift_min=-10, shift_max=+10, shift_incr=1, r="pendry", VI=10):
 
    """ %prog [options] r-fac.in
         Reads two spectra and calculates various R-factors -- FS 2011

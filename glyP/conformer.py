@@ -28,7 +28,7 @@ class Conformer():
         #temprorary variables to hold the data
         freq = [] ; ints = [] ; vibs = [] ; geom = [] ; atoms = []
 
-        self.NAtoms = None  
+        self.NAtoms = None
         self._id    = str(file_path).split('/')[1]
 
         for line in file(file_path, 'r').readlines():                     
@@ -115,7 +115,7 @@ class Conformer():
         import matplotlib.pyplot as plt
         from matplotlib.ticker import NullFormatter
 
-        fig, ax = plt.subplots(1, figsize=(8, 2))
+        fig, ax = plt.subplots(1, figsize=(16, 4))
 
         ax.tick_params(axis='both', which='both', bottom=True, top=False, labelbottom=True, right=False, left=False, labelleft=False)
         ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False);  ax.spines['left'].set_visible(False)
@@ -130,8 +130,10 @@ class Conformer():
             ax.plot([t,t],[0,3], 'k--')
 
         shift=1
-        scale_t  =  1/np.amax(self.IR[xmin:xmax+100])
-        Xsc = np.linspace(0, self.IR.shape[0]-1, self.IR.shape[0])* scaling_factor ; IRsc = self.IR*scale_t
+        incr = (self.IR[-1,0] - self.IR[0,0])/(len(self.IR)-1)
+
+        scale_t  =  1/np.amax(self.IR[int(xmin/incr):int(xmax/incr)+100,1])
+        Xsc = self.IR[:,0]* scaling_factor ; IRsc = self.IR[:,1]*scale_t
 
         ir_theo = ax.plot(Xsc, -IRsc+shift, color='0.25', linewidth=2)
         ax.fill_between(Xsc, np.linspace(shift, shift, len(IRsc)), -IRsc+1, color='0.5', alpha=0.5)
