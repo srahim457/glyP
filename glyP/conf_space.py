@@ -78,6 +78,8 @@ class Space(list):
 
         '''Finds a conformer with the lowest specified energy function and 
         references remainins conformers to this.'''
+        
+        # F=Free energy, E=Electronic energy, H=Enthalpy
 
         Eref = 0.0 ; Fref = 0.0 ; Href = 0.0 
         for conf in self: 
