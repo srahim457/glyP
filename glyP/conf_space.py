@@ -13,9 +13,9 @@ class Space(list):
     created using the data found there. 
     for different molecules, different lists can (meaning should!) be made.'''
 
-    _temp = 298.15
-    _kT=0.0019872036*_temp
-    _Ha2kcal=627.5095  
+    _temp = 298.15 #room temperature in Kelvin
+    _kT=0.0019872036*_temp #Boltzman constant
+    _Ha2kcal=627.5095  #Hartrees to kilo-calories/mol
 
     def __init__(self, molecule, ir_resolution=1.0):
         
