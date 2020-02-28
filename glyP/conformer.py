@@ -51,7 +51,7 @@ class Conformer():
                      mode_1 = []; mode_2 = []; mode_3 = []
                      continue
 
-                elif normal_mode_flag == True and re.search('^\s*.\d\s\s\s\d', line):
+                elif normal_mode_flag == True and re.search('^\s*\d*\s*.\d*', line) and len(line.split()) > 3:
                      mode_1.append(map(float, line.split()[2:5]))
                      mode_2.append(map(float, line.split()[5:8]))
                      mode_3.append(map(float, line.split()[8:11]))
