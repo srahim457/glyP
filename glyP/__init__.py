@@ -7,7 +7,7 @@ from utilities import *
 
 def _main():
 
-    A154 = Space('Tri_A154') #Space(); in conf_space.py. A154 is the name of the object that holds a list of all conformers
+    A154 = Space('Tri_A154') #Space(); in conf_space.py. A154 is the name of the object that holds a list of all conformers, Tri_A154 is the name of the file with the folder
     A154.gaussian_broadening(broaden=5) # Space class method
     A154.reference_to_zero(energy_function='F') # Space class method
     print A154

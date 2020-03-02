@@ -1,10 +1,10 @@
-import re
 
-#  10/2018 - CP and MM / HC-CUNY
-#  A class that creates an instance of a molecule defined as conformer.
-#  It parses gaussian output file (optimization + freq at this moment to
-#  set proper flags, to be fixed for only freq calcs) and creates an object with
-#  following attibutes:
+####################################################################################
+#  10/2018 - CP and MM / HC-CUNY                                                   
+#  A class that creates an instance of a molecule defined as conformer.            
+#  It parses gaussian output file (optimization + freq at this moment to           
+#  set proper flags, to be fixed for only freq calcs) and creates an object with   
+#  following attibutes:															   	
 #  - self.Geom -  np.array with xyz of all atoms
 #  - self.atoms - list of atomic numbers/int sorted as xyz
 #  - self.[EHG/Ezpe] - float, respective energy function value
@@ -12,10 +12,12 @@ import re
 #  - self.Vibs - 3D np.array with normal modes of all vibrations
 #  - self.NAtoms - int with number of atoms
 #  - self._ir    - identification/directory name
+#####################################################################################
 
 
+import re #regular expressions operations
 import numpy as np
-from utilities import * 
+from utilities import * #imports all functions from utilities 
 
 class Conformer():
 
@@ -26,6 +28,7 @@ class Conformer():
         read_geom = False
 
         #temprorary variables to hold the data
+        #these are lists: frequency, integers, vibrations, geometries, atomic chars
         freq = [] ; ints = [] ; vibs = [] ; geom = [] ; atoms = []
 
         self.NAtoms = None
@@ -81,7 +84,7 @@ class Conformer():
 
     def __str__(self): 
 
-       '''Prints a some molecular properties'''
+       '''Prints some molecular properties'''
 
        print "%30s\n                  NAtoms=%5d\n" %(self._id, self.NAtoms),
        print "E=%20.8f H=%20.8f F=%20.8f\n" %( self.E, self.H, self.F),
