@@ -13,9 +13,15 @@ class Space(list):
     created using the data found there. 
     for different molecules, different lists can (meaning should!) be made.'''
 
+<<<<<<< HEAD
     _temp = 298.15 #room temperature in Kelvin
     _kT=0.0019872036*_temp #Boltzman constant
     _Ha2kcal=627.5095  #Hartrees to kilo-calories/mol
+=======
+    _temp = 298.15
+    _kT=0.0019872036*_temp
+    _Ha2kcal=627.5095  
+>>>>>>> 8d0b5e9c0d46f927ab2ee08e82e6039dbbdda88c
 
     def __init__(self, molecule, ir_resolution=1.0):
         
@@ -78,8 +84,11 @@ class Space(list):
 
         '''Finds a conformer with the lowest specified energy function and 
         references remainins conformers to this.'''
+<<<<<<< HEAD
         
         # F=Free energy, E=Electronic energy, H=Enthalpy
+=======
+>>>>>>> 8d0b5e9c0d46f927ab2ee08e82e6039dbbdda88c
 
         Eref = 0.0 ; Fref = 0.0 ; Href = 0.0 
         for conf in self: 

@@ -1,10 +1,9 @@
-
-####################################################################################
-#  10/2018 - CP and MM / HC-CUNY                                                   
-#  A class that creates an instance of a molecule defined as conformer.            
-#  It parses gaussian output file (optimization + freq at this moment to           
-#  set proper flags, to be fixed for only freq calcs) and creates an object with   
-#  following attibutes:															   	
+#####################################################################################
+#  10/2018 - CP and MM / HC-CUNY
+#  A class that creates an instance of a molecule defined as conformer.
+#  It parses gaussian output file (optimization + freq at this moment to
+#  set proper flags, to be fixed for only freq calcs) and creates an object with
+#  following attibutes:
 #  - self.Geom -  np.array with xyz of all atoms
 #  - self.atoms - list of atomic numbers/int sorted as xyz
 #  - self.[EHG/Ezpe] - float, respective energy function value
@@ -18,6 +17,7 @@
 import re #regular expressions operations
 import numpy as np
 from utilities import * #imports all functions from utilities 
+
 
 class Conformer():
 
@@ -54,7 +54,8 @@ class Conformer():
                      mode_1 = []; mode_2 = []; mode_3 = []
                      continue
 
-                elif normal_mode_flag == True and re.search('^\s*.\d\s\s\s\d', line):
+
+                elif normal_mode_flag == True and re.search('^\s*\d*\s*.\d*', line) and len(line.split()) > 3:
                      mode_1.append(map(float, line.split()[2:5]))
                      mode_2.append(map(float, line.split()[5:8]))
                      mode_3.append(map(float, line.split()[8:11]))

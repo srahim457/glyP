@@ -17,7 +17,7 @@ def get_distance(at1, at2):
     return math.sqrt((at1[0]-at2[0])**2+(at1[1]-at2[1])**2+(at1[2]-at2[2])**2)
 
 def element_symbol(A): 
-    periodic_table = { '1' : 'H', '6' : 'C', '7' : 'N', '8' : 'O'}
+    periodic_table = { '1' : 'H', '6' : 'C', '7' : 'N', '8' : 'O' , '9' : 'F', '14' : 'Si' }
     return periodic_table[A]
 
 def calculate_ring(xyz, ring_atoms): 
@@ -232,7 +232,8 @@ def rfac(espec, tspec, start=1000, stop=1700, w_incr=1.0, shift_min=-10, shift_m
    #sys.stdout.write("\nMinimal r-factors:\n")
    if "pendry" in r:
       #sys.stdout.write("minimal r-factor: Delta = %8.5f, Pendry R-factor = %7.5f \n" % ( min_pendry[1], min_pendry[0]))
-        return min_pendry[1], min_pendry[0]
+        print  min_pendry[1], min_pendry[0]
+        
    if "R1" in r:
       sys.stdout.write("minimal r-factor: Delta = %8.5f, R1 R-factor = %7.5f \n" % ( min_r1[1], min_r1[0]))
    if "R2" in r:
