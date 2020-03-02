@@ -13,7 +13,6 @@
 #  - self._ir    - identification/directory name
 #####################################################################################
 
-# TESTING TESTING
 import re #regular expressions operations
 import numpy as np
 from utilities import * #imports all functions from utilities 
